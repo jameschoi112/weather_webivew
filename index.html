@@ -45,9 +45,9 @@
         }
     </style>
 </head>
-<body class="bg-gradient-to-r from-yellow-400 to-purple-600 min-h-screen flex items-center justify-center">
+<body class="bg-gradient-to-r from-yellow-400 to-purple-600 min-h-screen flex items-center justify-center relative">
     <div id="weather-container" class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full text-center hidden">
-        <h1 class="text-3xl font-bold mb-4">현재 날씨</h1>
+        <h1 class="text-3xl font-bold mb-4">오늘의 날씨</h1>
         <div id="current-weather" class="mb-4">
             <p id="location" class="text-xl font-semibold"></p>
             <div class="flex items-center justify-center">
@@ -55,6 +55,7 @@
                 <p id="temperature" class="text-4xl font-bold ml-2"></p>
             </div>
             <p id="high-low" class="text-lg"></p>
+            <p id="current-time" class="text-sm mt-2"></p>
         </div>
         <h2 class="text-2xl font-bold mb-2">시간대별 날씨</h2>
         <div id="hourly-weather" class="hourly-weather-container mb-4"></div>

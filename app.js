@@ -17,6 +17,10 @@ document.addEventListener('DOMContentLoaded', () => {
         alert('위치 정보를 사용할 수 없습니다. 경기도 수원시의 날씨 정보를 표시합니다.');
         getWeatherData(defaultLat, defaultLon);
     }
+
+    // 현재 시간 업데이트 함수 호출
+    updateCurrentTime();
+    setInterval(updateCurrentTime, 60000); // 매 분마다 시간 업데이트
 });
 
 async function getWeatherData(lat, lon) {
@@ -63,6 +67,7 @@ function displayCurrentWeather(currentData, forecastData) {
     const temperature = document.getElementById('temperature');
     const highLow = document.getElementById('high-low');
     const currentIcon = document.getElementById('current-icon');
+    const currentTimeElement = document.getElementById('current-time');
 
     if (currentData && currentData.name && currentData.sys && currentData.main) {
         location.textContent = `${currentData.name}, ${currentData.sys.country}`;
@@ -72,15 +77,26 @@ function displayCurrentWeather(currentData, forecastData) {
         console.error('Current weather data is not in expected format:', currentData);
     }
 
-    // 최고 및 최저 온도를 forecastData에서 계산
+    // 현재 시간에 가장 가까운 예측 데이터로 최고 및 최저 온도 계산
     if (forecastData && forecastData.list) {
-        const todayTemps = forecastData.list.slice(0, 8).map(item => item.main.temp);
-        const maxTemp = Math.max(...todayTemps);
-        const minTemp = Math.min(...todayTemps);
-        highLow.textContent = `최고: ${Math.round(maxTemp)}°C / 최저: ${Math.round(minTemp)}°C`;
+        const now = new Date();
+        const todayForecasts = forecastData.list.filter(item => {
+            const forecastTime = new Date(item.dt_txt);
+            return forecastTime.getDate() === now.getDate();
+        });
+
+        if (todayForecasts.length > 0) {
+            const temps = todayForecasts.map(item => item.main.temp);
+            const maxTemp = Math.max(...temps);
+            const minTemp = Math.min(...temps);
+            highLow.textContent = `최고: ${Math.round(maxTemp)}°C / 최저: ${Math.round(minTemp)}°C`;
+        }
     } else {
         console.error('Forecast weather data is not in expected format:', forecastData);
     }
+
+    // 현재 시간 표시
+    updateCurrentTime();
 
     console.log('Current Weather Displayed');
 }
@@ -90,16 +106,22 @@ function displayHourlyWeather(data) {
     hourlyWeather.innerHTML = ''; // 기존 내용을 비웁니다.
 
     if (data && data.list) {
-        data.list.slice(0, 8).forEach(item => { // 3시간 단위로 변경
-            const hourDiv = document.createElement('div');
-            hourDiv.className = 'flex flex-col items-center p-2 bg-pink-opacity rounded-lg min-w-[80px]'; // 아이템의 최소 너비 설정
-            const time = new Date(item.dt_txt).getHours();
-            hourDiv.innerHTML = `
-                <p>${time}시</p>
-                <img src="https://openweathermap.org/img/wn/${item.weather[0].icon}.png" class="weather-icon" alt="weather icon">
-                <p>${Math.round(item.main.temp)}°C</p>
-            `;
-            hourlyWeather.appendChild(hourDiv);
+        const now = new Date();
+        const currentHour = now.getHours();
+
+        data.list.forEach(item => {
+            const forecastTime = new Date(item.dt_txt);
+            if (forecastTime.getHours() >= currentHour) {
+                const hourDiv = document.createElement('div');
+                hourDiv.className = 'flex flex-col items-center p-2 bg-pink-opacity rounded-lg min-w-[80px]';
+                const hours = forecastTime.getHours();
+                hourDiv.innerHTML = `
+                    <p>${hours < 10 ? '0' + hours : hours}시</p>
+                    <img src="https://openweathermap.org/img/wn/${item.weather[0].icon}.png" class="weather-icon" alt="weather icon">
+                    <p>${Math.round(item.main.temp)}°C</p>
+                `;
+                hourlyWeather.appendChild(hourDiv);
+            }
         });
     } else {
         console.error('Hourly weather data is not in expected format:', data);
@@ -135,8 +157,9 @@ function displayForecastWeather(data) {
             const dayDiv = document.createElement('div');
             dayDiv.className = 'flex items-center justify-between p-2 bg-pink-opacity rounded-lg';
             const displayDate = new Date(dayData[0].dt_txt);
+            const dayOfWeek = displayDate.toLocaleDateString('ko-KR', { weekday: 'short' }); // 요일 추가
             dayDiv.innerHTML = `
-                <p>${displayDate.getMonth() + 1}월 ${displayDate.getDate()}일</p>
+                <p>${displayDate.getMonth() + 1}월 ${displayDate.getDate()}일 (${dayOfWeek})</p>
                 <img src="https://openweathermap.org/img/wn/${weatherIcon}.png" class="weather-icon" alt="weather icon">
                 <p>${Math.round(maxTemp)}°C / ${Math.round(minTemp)}°C</p>
             `;
@@ -147,4 +170,11 @@ function displayForecastWeather(data) {
     }
 
     console.log('Forecast Weather Displayed');
+}
+
+function updateCurrentTime() {
+    const currentTimeElement = document.getElementById('current-time');
+    const now = new Date();
+    const options = { timeZone: 'Asia/Seoul', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+    currentTimeElement.textContent = now.toLocaleTimeString('ko-KR', options);
 }
