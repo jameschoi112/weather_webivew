@@ -1,6 +1,6 @@
 const apiKey = '2630650eb643159d28e9c376363973e8';  // OpenWeatherMap API 키를 여기에 입력하세요
-const defaultLat = 37.2636; // 경기도 수원시의 위도
-const defaultLon = 127.0286; // 경기도 수원시의 경도
+const defaultLat = 	37.29225652; // 경기도 수원시의 위도
+const defaultLon = 127.0701028; // 경기도 수원시의 경도
 
 document.addEventListener('DOMContentLoaded', () => {
     if (navigator.geolocation) {
@@ -83,7 +83,7 @@ function displayHourlyWeather(data) {
     if (data && data.list) {
         data.list.slice(0, 24).forEach(item => { // 1시간 단위로 변경
             const hourDiv = document.createElement('div');
-            hourDiv.className = 'flex flex-col items-center p-2 bg-pink-100 rounded-lg min-w-[80px]'; // 아이템의 최소 너비 설정
+            hourDiv.className = 'flex flex-col items-center p-2 bg-pink-opacity rounded-lg min-w-[80px]'; // 아이템의 최소 너비 설정
             const time = new Date(item.dt_txt).getHours();
             hourDiv.innerHTML = `
                 <p>${time}시</p>
@@ -106,7 +106,7 @@ function displayForecastWeather(data) {
     if (data && data.list) {
         for (let i = 0; i < data.list.length; i += 8) {
             const dayDiv = document.createElement('div');
-            dayDiv.className = 'flex items-center justify-between p-2 bg-pink-100 rounded-lg';
+            dayDiv.className = 'flex items-center justify-between p-2 bg-pink-opacity rounded-lg';
             const date = new Date(data.list[i].dt_txt);
             dayDiv.innerHTML = `
                 <p>${date.getMonth() + 1}월 ${date.getDate()}일</p>

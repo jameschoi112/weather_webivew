@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>날씨 정보</title>
+    <title>소빵재빵 날씨예보</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
         .weather-icon {
@@ -40,11 +40,14 @@
             background-size: cover;
             background-position: center;
         }
+        .bg-pink-opacity {
+            background-color: rgba(255, 192, 203, 0.8); /* 핑크색 배경에 80% 불투명도 적용 */
+        }
     </style>
 </head>
 <body class="bg-gradient-to-r from-yellow-400 to-purple-600 min-h-screen flex items-center justify-center">
     <div id="weather-container" class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full text-center hidden">
-        <h1 class="text-3xl font-bold mb-4">오늘의 날씨</h1>
+        <h1 class="text-3xl font-bold mb-4">현재 날씨</h1>
         <div id="current-weather" class="mb-4">
             <p id="location" class="text-xl font-semibold"></p>
             <div class="flex items-center justify-center">
