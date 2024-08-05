@@ -1,5 +1,5 @@
 const apiKey = '2630650eb643159d28e9c376363973e8';  // OpenWeatherMap API 키를 여기에 입력하세요
-const defaultLat = 	37.29225652; // 경기도 수원시의 위도
+const defaultLat = 37.29225652; // 경기도 수원시의 위도
 const defaultLon = 127.0701028; // 경기도 수원시의 경도
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -44,7 +44,7 @@ async function getWeatherData(lat, lon) {
         console.log('Current Weather Data:', currentWeatherData);
         console.log('Forecast Weather Data:', forecastWeatherData);
 
-        displayCurrentWeather(currentWeatherData);
+        displayCurrentWeather(currentWeatherData, forecastWeatherData);
         displayHourlyWeather(forecastWeatherData);
         displayForecastWeather(forecastWeatherData);
 
@@ -58,19 +58,28 @@ async function getWeatherData(lat, lon) {
     }
 }
 
-function displayCurrentWeather(data) {
+function displayCurrentWeather(currentData, forecastData) {
     const location = document.getElementById('location');
     const temperature = document.getElementById('temperature');
     const highLow = document.getElementById('high-low');
     const currentIcon = document.getElementById('current-icon');
 
-    if (data && data.name && data.sys && data.main) {
-        location.textContent = `${data.name}, ${data.sys.country}`;
-        temperature.textContent = `${Math.round(data.main.temp)}°C`;
-        highLow.textContent = `최고: ${Math.round(data.main.temp_max)}°C / 최저: ${Math.round(data.main.temp_min)}°C`;
-        currentIcon.src = `https://openweathermap.org/img/wn/${data.weather[0].icon}.png`;
+    if (currentData && currentData.name && currentData.sys && currentData.main) {
+        location.textContent = `${currentData.name}, ${currentData.sys.country}`;
+        temperature.textContent = `${Math.round(currentData.main.temp)}도`;
+        currentIcon.src = `https://openweathermap.org/img/wn/${currentData.weather[0].icon}.png`;
     } else {
-        console.error('Current weather data is not in expected format:', data);
+        console.error('Current weather data is not in expected format:', currentData);
+    }
+
+    // 최고 및 최저 온도를 forecastData에서 계산
+    if (forecastData && forecastData.list) {
+        const todayTemps = forecastData.list.slice(0, 8).map(item => item.main.temp);
+        const maxTemp = Math.max(...todayTemps);
+        const minTemp = Math.min(...todayTemps);
+        highLow.textContent = `최고: ${Math.round(maxTemp)}°C / 최저: ${Math.round(minTemp)}°C`;
+    } else {
+        console.error('Forecast weather data is not in expected format:', forecastData);
     }
 
     console.log('Current Weather Displayed');
@@ -81,7 +90,7 @@ function displayHourlyWeather(data) {
     hourlyWeather.innerHTML = ''; // 기존 내용을 비웁니다.
 
     if (data && data.list) {
-        data.list.slice(0, 24).forEach(item => { // 1시간 단위로 변경
+        data.list.slice(0, 8).forEach(item => { // 3시간 단위로 변경
             const hourDiv = document.createElement('div');
             hourDiv.className = 'flex flex-col items-center p-2 bg-pink-opacity rounded-lg min-w-[80px]'; // 아이템의 최소 너비 설정
             const time = new Date(item.dt_txt).getHours();
@@ -104,17 +113,35 @@ function displayForecastWeather(data) {
     forecastWeather.innerHTML = ''; // 기존 내용을 비웁니다.
 
     if (data && data.list) {
-        for (let i = 0; i < data.list.length; i += 8) {
+        // 날짜별로 데이터를 그룹화합니다.
+        const days = {};
+
+        data.list.forEach(item => {
+            const date = new Date(item.dt_txt).getDate();
+            if (!days[date]) {
+                days[date] = [];
+            }
+            days[date].push(item);
+        });
+
+        // 각 날짜에 대해 최고 온도와 최저 온도를 계산합니다.
+        Object.keys(days).forEach(date => {
+            const dayData = days[date];
+            const temps = dayData.map(item => item.main.temp);
+            const maxTemp = Math.max(...temps);
+            const minTemp = Math.min(...temps);
+            const weatherIcon = dayData[0].weather[0].icon;
+
             const dayDiv = document.createElement('div');
             dayDiv.className = 'flex items-center justify-between p-2 bg-pink-opacity rounded-lg';
-            const date = new Date(data.list[i].dt_txt);
+            const displayDate = new Date(dayData[0].dt_txt);
             dayDiv.innerHTML = `
-                <p>${date.getMonth() + 1}월 ${date.getDate()}일</p>
-                <img src="https://openweathermap.org/img/wn/${data.list[i].weather[0].icon}.png" class="weather-icon" alt="weather icon">
-                <p>${Math.round(data.list[i].main.temp_max)}°C / ${Math.round(data.list[i].main.temp_min)}°C</p>
+                <p>${displayDate.getMonth() + 1}월 ${displayDate.getDate()}일</p>
+                <img src="https://openweathermap.org/img/wn/${weatherIcon}.png" class="weather-icon" alt="weather icon">
+                <p>${Math.round(maxTemp)}°C / ${Math.round(minTemp)}°C</p>
             `;
             forecastWeather.appendChild(dayDiv);
-        }
+        });
     } else {
         console.error('Forecast weather data is not in expected format:', data);
     }
