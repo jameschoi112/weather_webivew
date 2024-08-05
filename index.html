@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>날씨 정보</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .weather-icon {
+            width: 50px;
+            height: 50px;
+        }
+        .loading-spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .hourly-weather-container {
+            display: flex;
+            overflow-x: auto;
+            padding: 10px;
+            gap: 10px;
+        }
+        .hourly-weather-container::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera*/
+        }
+        .hourly-weather-container {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        #weather-container {
+            background-image: url('images/gif/bg01.gif');
+            background-size: cover;
+            background-position: center;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-r from-yellow-400 to-yellow-600 min-h-screen flex items-center justify-center">
+    <div id="weather-container" class="bg-white bg-opacity-75 p-6 rounded-lg shadow-lg max-w-md w-full text-center hidden">
+        <h1 class="text-3xl font-bold mb-4">오늘의 날씨</h1>
+        <div id="current-weather" class="mb-4">
+            <p id="location" class="text-xl font-semibold"></p>
+            <div class="flex items-center justify-center">
+                <img id="current-icon" class="weather-icon" src="" alt="weather icon">
+                <p id="temperature" class="text-4xl font-bold ml-2"></p>
+            </div>
+            <p id="high-low" class="text-lg"></p>
+        </div>
+        <h2 class="text-2xl font-bold mb-2">시간대별 날씨</h2>
+        <div id="hourly-weather" class="hourly-weather-container mb-4"></div>
+        <h2 class="text-2xl font-bold mb-2">이번 주 날씨</h2>
+        <div id="forecast-weather" class="grid grid-cols-1 gap-2"></div>
+    </div>
+    <div id="loading-spinner" class="loading-spinner"></div>
+    <script src="app.js"></script>
+</body>
+</html>
